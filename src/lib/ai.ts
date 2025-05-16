@@ -76,9 +76,9 @@ function minimax(
   
   // Check for available moves
   const moves: Position[] = [];
-  for (let z = 0; z < board.length; z++) {
-    for (let y = 0; y < board[z].length; y++) {
-      for (let x = 0; x < board[z][y].length; x++) {
+  for (let z = 0; z < 3; z++) {
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 3; x++) {
         const pos = { x, y, z };
         if (isValidMove(board, pos)) {
           moves.push(pos);
@@ -97,9 +97,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = aiPlayer;
-      const evalScore = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
-      maxEval = Math.max(maxEval, evalScore);
-      alpha = Math.max(alpha, evalScore);
+      const evaluation = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
+      maxEval = Math.max(maxEval, evaluation);
+      alpha = Math.max(alpha, evaluation);
       if (beta <= alpha) break;
     }
     return maxEval;
@@ -108,9 +108,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = opponentPlayer;
-      const evalScore = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
-      minEval = Math.min(minEval, evalScore);
-      beta = Math.min(beta, evalScore);
+      const evaluation = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
+      minEval = Math.min(minEval, evaluation);
+      beta = Math.min(beta, evaluation);
       if (beta <= alpha) break;
     }
     return minEval;
@@ -122,9 +122,9 @@ function minimax(
  */
 function getAvailableMoves(board: Board): Position[] {
   const moves: Position[] = [];
-  for (let z = 0; z < board.length; z++) {
-    for (let y = 0; y < board[z].length; y++) {
-      for (let x = 0; x < board[z][y].length; x++) {
+  for (let z = 0; z < 3; z++) {
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 3; x++) {
         const pos = { x, y, z };
         if (isValidMove(board, pos)) {
           moves.push(pos);

@@ -21,23 +21,21 @@ export interface WinningLine {
 
 // Game settings
 export interface GameSettings {
-  boardSize: number;        // 3-8
   opponentType: OpponentType;
   aiDifficulty: number;     // 1-50
 }
 
 // Default game settings
 export const DEFAULT_SETTINGS: GameSettings = {
-  boardSize: 3,
   opponentType: 'human',
   aiDifficulty: 25
 };
 
-// Creates an empty board of the specified size
-export function createEmptyBoard(size: number = 3): Board {
-  return Array(size).fill(null).map(() =>
-    Array(size).fill(null).map(() =>
-      Array(size).fill(null)
+// Creates an empty board
+export function createEmptyBoard(): Board {
+  return Array(3).fill(null).map(() =>
+    Array(3).fill(null).map(() =>
+      Array(3).fill(null)
     )
   );
 }
@@ -54,13 +52,12 @@ export function placeMarker(board: Board, position: Position, player: Player): B
   return newBoard;
 }
 
-// Checks if the position is valid and empty
+// Check if the position is valid and empty
 export function isValidMove(board: Board, position: Position): boolean {
   const { x, y, z } = position;
-  const size = board.length;
   
   // Check if position is within bounds
-  if (x < 0 || x >= size || y < 0 || y >= size || z < 0 || z >= size) {
+  if (x < 0 || x >= 3 || y < 0 || y >= 3 || z < 0 || z >= 3) {
     return false;
   }
   
@@ -68,9 +65,10 @@ export function isValidMove(board: Board, position: Position): boolean {
   return board[z][y][x] === null;
 }
 
-// All possible win lines in a size×size×size tic-tac-toe
-export function getAllWinLines(size: number = 3): Position[][] {
+// All possible win lines in a 3×3×3 tic-tac-toe
+export function getAllWinLines(): Position[][] {
   const lines: Position[][] = [];
+  const size = 3;
   
   // 1. Straight lines along each axis (size² * 3 lines)
   // X-axis lines
@@ -189,8 +187,7 @@ export function getAllWinLines(size: number = 3): Position[][] {
 
 // Check if the game is won
 export function checkForWin(board: Board): WinningLine | null {
-  const size = board.length;
-  const winLines = getAllWinLines(size);
+  const winLines = getAllWinLines();
   
   for (const line of winLines) {
     const firstPos = line[0];
@@ -220,10 +217,9 @@ export function checkForWin(board: Board): WinningLine | null {
 
 // Check if the board is full (draw)
 export function isBoardFull(board: Board): boolean {
-  const size = board.length;
-  for (let z = 0; z < size; z++) {
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
+  for (let z = 0; z < 3; z++) {
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 3; x++) {
         if (board[z][y][x] === null) {
           return false;
         }
@@ -237,10 +233,9 @@ export function isBoardFull(board: Board): boolean {
 // Gets all available moves on the board
 export function getAvailableMoves(board: Board): Position[] {
   const moves: Position[] = [];
-  const size = board.length;
-  for (let z = 0; z < size; z++) {
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
+  for (let z = 0; z < 3; z++) {
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 3; x++) {
         if (board[z][y][x] === null) {
           moves.push({ x, y, z });
         }

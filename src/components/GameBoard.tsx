@@ -22,7 +22,6 @@ interface GameBoardProps {
   gameState: 'playing' | 'won' | 'draw';
   winningLine: WinningLine | null;
   onCellClick: (position: Position) => void;
-  boardSize: number;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ 
@@ -30,8 +29,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentPlayer, 
   gameState, 
   winningLine, 
-  onCellClick,
-  boardSize = 3 
+  onCellClick
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -46,9 +44,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
   
-  // Cell and spacing dimensions - adjust based on board size
-  const CELL_SIZE = Math.max(0.4, 1.5 - (boardSize * 0.1)); // Smaller cells for larger boards
-  const SPACING = Math.max(0.1, 0.3 - (boardSize * 0.02));
+  // Cell and spacing dimensions
+  const CELL_SIZE = 1.2;
+  const SPACING = 0.2;
   const MARBLE_RADIUS = CELL_SIZE * 0.4;
   
   // Initialize the 3D scene
@@ -60,15 +58,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
     scene.background = new THREE.Color(0x0f172a);
     sceneRef.current = scene;
     
-    // Create camera - adjust distance for larger board sizes
+    // Create camera
     const camera = new THREE.PerspectiveCamera(
       50, 
       mountRef.current.clientWidth / mountRef.current.clientHeight, 
       0.1, 
       1000
     );
-    // Position camera based on board size
-    const cameraDistance = boardSize * 2;
+    // Position camera
+    const cameraDistance = 6;
     camera.position.set(cameraDistance, cameraDistance, cameraDistance);
     cameraRef.current = camera;
     
@@ -84,8 +82,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = boardSize * 8;
-    controls.minDistance = boardSize * 1.5;
+    controls.maxDistance = 15;
+    controls.minDistance = 5;
     controlsRef.current = controls;
     
     // Add lighting
@@ -126,7 +124,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [boardSize]);
+  }, []);
   
   // Create the 3D grid
   const createGrid = () => {
@@ -146,24 +144,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
     scene.add(cellsContainer);
     
     // Initialize the cell and marble refs arrays
-    cellRefs.current = Array(boardSize)
+    cellRefs.current = Array(3)
       .fill(null)
-      .map(() => Array(boardSize)
+      .map(() => Array(3)
         .fill(null)
-        .map(() => Array(boardSize).fill(null)));
+        .map(() => Array(3).fill(null)));
     
-    marbleRefs.current = Array(boardSize)
+    marbleRefs.current = Array(3)
       .fill(null)
-      .map(() => Array(boardSize)
+      .map(() => Array(3)
         .fill(null)
-        .map(() => Array(boardSize).fill(null)));
+        .map(() => Array(3).fill(null)));
     
     // Create cells
-    for (let z = 0; z < boardSize; z++) {
-      for (let y = 0; y < boardSize; y++) {
-        for (let x = 0; x < boardSize; x++) {
+    for (let z = 0; z < 3; z++) {
+      for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
           const position = { x, y, z };
-          const worldPos = gameToWorldPosition(position, CELL_SIZE, SPACING, boardSize);
+          const worldPos = gameToWorldPosition(position, CELL_SIZE, SPACING, 3);
           
           // Create cell cube
           const geometry = new THREE.BoxGeometry(CELL_SIZE, CELL_SIZE, CELL_SIZE);
@@ -179,7 +177,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }
     
     // Optional: Add frame/outline for visual clarity
-    const frameSize = boardSize * (CELL_SIZE + SPACING) - SPACING;
+    const frameSize = 3 * (CELL_SIZE + SPACING) - SPACING;
     const frameGeometry = new THREE.BoxGeometry(frameSize, frameSize, frameSize);
     const frameMaterial = new THREE.MeshBasicMaterial({ 
       color: 0x475569, 
@@ -196,9 +194,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (!sceneRef.current) return;
     
     // Update cells and marbles
-    for (let z = 0; z < boardSize; z++) {
-      for (let y = 0; y < boardSize; y++) {
-        for (let x = 0; x < boardSize; x++) {
+    for (let z = 0; z < 3; z++) {
+      for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < 3; x++) {
           const cell = cellRefs.current?.[z]?.[y]?.[x];
           if (!cell) continue;
           
@@ -215,7 +213,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           if (cellValue !== null) {
             // Marble should exist - add if it doesn't
             if (!marbleRefs.current[z][y][x]) {
-              const position = gameToWorldPosition({ x, y, z }, CELL_SIZE, SPACING, boardSize);
+              const position = gameToWorldPosition({ x, y, z }, CELL_SIZE, SPACING, 3);
               const geometry = new THREE.SphereGeometry(MARBLE_RADIUS, 32, 32);
               const material = createMarbleMaterial(cellValue);
               const marble = new THREE.Mesh(geometry, material);
@@ -246,8 +244,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       }
       
       // Get start and end positions
-      const startPos = gameToWorldPosition(winningLine.positions[0], CELL_SIZE, SPACING, boardSize);
-      const endPos = gameToWorldPosition(winningLine.positions[winningLine.positions.length - 1], CELL_SIZE, SPACING, boardSize);
+      const startPos = gameToWorldPosition(winningLine.positions[0], CELL_SIZE, SPACING, 3);
+      const endPos = gameToWorldPosition(winningLine.positions[winningLine.positions.length - 1], CELL_SIZE, SPACING, 3);
       
       // Create winning line
       const line = createWinningLine(startPos, endPos);
@@ -258,7 +256,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       sceneRef.current.remove(winningLineRef.current);
       winningLineRef.current = null;
     }
-  }, [board, hoveredCell, winningLine, boardSize]);
+  }, [board, hoveredCell, winningLine]);
   
   // Handle mouse movement for hover effects and wheel for zoom
   useEffect(() => {

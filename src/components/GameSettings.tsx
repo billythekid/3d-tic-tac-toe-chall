@@ -32,13 +32,6 @@ const GameSettingsMenu: React.FC<GameSettingsProps> = ({
     });
   };
 
-  const handleBoardSizeChange = (value: string) => {
-    onSettingsChange({
-      ...settings,
-      boardSize: parseInt(value)
-    });
-  };
-
   const handleDifficultyChange = (value: number[]) => {
     onSettingsChange({
       ...settings,
@@ -69,31 +62,6 @@ const GameSettingsMenu: React.FC<GameSettingsProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Board Size */}
-          <div className="space-y-2">
-            <Label htmlFor="board-size" className="text-md font-medium">Board Size</Label>
-            <Select 
-              value={settings.boardSize.toString()} 
-              onValueChange={handleBoardSizeChange}
-            >
-              <SelectTrigger id="board-size" className="w-full">
-                <SelectValue placeholder="Select board size" />
-              </SelectTrigger>
-              <SelectContent>
-                {[3, 4, 5, 6, 7, 8].map(size => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}x{size}x{size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground">
-              Choose the size of the 3D grid
-            </p>
-          </div>
-          
-          <Separator />
-          
           {/* Opponent Type */}
           <div className="space-y-2">
             <Label className="text-md font-medium">Opponent Type</Label>

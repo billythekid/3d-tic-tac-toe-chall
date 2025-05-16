@@ -106,7 +106,6 @@
 - **Technical Constraints**: Optimize 3D rendering for lower-end devices
 
 ## Implementation Considerations
-- **Scalability Needs**: Potential for additional game board sizes (4×4×4)
 - **Testing Focus**: User understanding of 3D navigation
 - **Critical Questions**: How intuitive is the 3D visualization for users not familiar with 3D interfaces?
 

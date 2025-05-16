@@ -33,7 +33,7 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   
   // Game state (persisted via KV store)
-  const [board, setBoard] = useKV<Board>("tictactoe-board", createEmptyBoard(settings.boardSize));
+  const [board, setBoard] = useKV<Board>("tictactoe-board", createEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useKV<Player>("tictactoe-current-player", 1);
   const [gameState, setGameState] = useKV<'playing' | 'won' | 'draw'>("tictactoe-game-state", 'playing');
   const [winningLine, setWinningLine] = useKV<WinningLine | null>("tictactoe-winning-line", null);
@@ -116,13 +116,12 @@ function App() {
 
   // Apply new settings and restart the game
   const handleApplySettings = () => {
-    // Create a new board with the updated size
-    setBoard(createEmptyBoard(settings.boardSize));
+    // Create a new board
+    setBoard(createEmptyBoard());
     setCurrentPlayer(1);
     setGameState('playing');
     setWinningLine(null);
     setMoves([]);
-    toast.info(`Game restarted with ${settings.boardSize}x${settings.boardSize}x${settings.boardSize} board`);
     
     if (settings.opponentType === 'ai') {
       toast.info(`Playing against AI (Difficulty: ${settings.aiDifficulty}/50)`);
@@ -133,7 +132,7 @@ function App() {
 
   // Restart the game
   const handleRestart = () => {
-    setBoard(createEmptyBoard(settings.boardSize));
+    setBoard(createEmptyBoard());
     setCurrentPlayer(1);
     setGameState('playing');
     setWinningLine(null);
@@ -154,7 +153,6 @@ function App() {
             gameState={gameState}
             winningLine={winningLine}
             onCellClick={handleCellClick}
-            boardSize={settings.boardSize}
           />
         </div>
         
