@@ -22,6 +22,7 @@ interface GameBoardProps {
   gameState: 'playing' | 'won' | 'draw';
   winningLine: WinningLine | null;
   onCellClick: (position: Position) => void;
+  boardSize: number;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ 
@@ -29,7 +30,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentPlayer, 
   gameState, 
   winningLine, 
-  onCellClick 
+  onCellClick,
+  boardSize = 3 
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -44,9 +46,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
   
-  // Cell and spacing dimensions
-  const CELL_SIZE = 0.8;
-  const SPACING = 0.2;
+  // Cell and spacing dimensions - adjust based on board size
+  const CELL_SIZE = Math.max(0.4, 1.5 - (boardSize * 0.1)); // Smaller cells for larger boards
+  const SPACING = Math.max(0.1, 0.3 - (boardSize * 0.02));
   const MARBLE_RADIUS = CELL_SIZE * 0.4;
   
   // Initialize the 3D scene
@@ -58,14 +60,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
     scene.background = new THREE.Color(0x0f172a);
     sceneRef.current = scene;
     
-    // Create camera
+    // Create camera - adjust distance for larger board sizes
     const camera = new THREE.PerspectiveCamera(
       50, 
       mountRef.current.clientWidth / mountRef.current.clientHeight, 
       0.1, 
       1000
     );
-    camera.position.set(5, 5, 5);
+    // Position camera based on board size
+    const cameraDistance = boardSize * 2;
+    camera.position.set(cameraDistance, cameraDistance, cameraDistance);
     cameraRef.current = camera;
     
     // Create renderer
@@ -80,8 +84,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = 15;
-    controls.minDistance = 3;
+    controls.maxDistance = boardSize * 8;
+    controls.minDistance = boardSize * 1.5;
     controlsRef.current = controls;
     
     // Add lighting
@@ -122,35 +126,44 @@ const GameBoard: React.FC<GameBoardProps> = ({
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [boardSize]);
   
   // Create the 3D grid
   const createGrid = () => {
     if (!sceneRef.current) return;
     
     const scene = sceneRef.current;
+    
+    // Remove previous grid if it exists
+    scene.children.forEach(child => {
+      if (child.name === 'grid') {
+        scene.remove(child);
+      }
+    });
+    
     const cellsContainer = new THREE.Group();
+    cellsContainer.name = 'grid';
     scene.add(cellsContainer);
     
     // Initialize the cell and marble refs arrays
-    cellRefs.current = Array(3)
+    cellRefs.current = Array(boardSize)
       .fill(null)
-      .map(() => Array(3)
+      .map(() => Array(boardSize)
         .fill(null)
-        .map(() => Array(3).fill(null)));
+        .map(() => Array(boardSize).fill(null)));
     
-    marbleRefs.current = Array(3)
+    marbleRefs.current = Array(boardSize)
       .fill(null)
-      .map(() => Array(3)
+      .map(() => Array(boardSize)
         .fill(null)
-        .map(() => Array(3).fill(null)));
+        .map(() => Array(boardSize).fill(null)));
     
     // Create cells
-    for (let z = 0; z < 3; z++) {
-      for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 3; x++) {
+    for (let z = 0; z < boardSize; z++) {
+      for (let y = 0; y < boardSize; y++) {
+        for (let x = 0; x < boardSize; x++) {
           const position = { x, y, z };
-          const worldPos = gameToWorldPosition(position, CELL_SIZE, SPACING);
+          const worldPos = gameToWorldPosition(position, CELL_SIZE, SPACING, boardSize);
           
           // Create cell cube
           const geometry = new THREE.BoxGeometry(CELL_SIZE, CELL_SIZE, CELL_SIZE);
@@ -166,7 +179,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }
     
     // Optional: Add frame/outline for visual clarity
-    const frameSize = 3 * (CELL_SIZE + SPACING) - SPACING;
+    const frameSize = boardSize * (CELL_SIZE + SPACING) - SPACING;
     const frameGeometry = new THREE.BoxGeometry(frameSize, frameSize, frameSize);
     const frameMaterial = new THREE.MeshBasicMaterial({ 
       color: 0x475569, 
@@ -183,26 +196,26 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (!sceneRef.current) return;
     
     // Update cells and marbles
-    for (let z = 0; z < 3; z++) {
-      for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 3; x++) {
-          const cell = cellRefs.current[z][y][x];
-          const cellValue = board[z][y][x];
+    for (let z = 0; z < boardSize; z++) {
+      for (let y = 0; y < boardSize; y++) {
+        for (let x = 0; x < boardSize; x++) {
+          const cell = cellRefs.current?.[z]?.[y]?.[x];
+          if (!cell) continue;
+          
+          const cellValue = board?.[z]?.[y]?.[x];
           const isHovered = hoveredCell?.x === x && hoveredCell?.y === y && hoveredCell?.z === z;
           const isInWinningLine = winningLine?.positions.some(
             pos => pos.x === x && pos.y === y && pos.z === z
           );
           
           // Update cell material
-          if (cell) {
-            cell.material = createCellMaterial(isHovered, !!isInWinningLine);
-          }
+          cell.material = createCellMaterial(isHovered, !!isInWinningLine);
           
           // Add, update, or remove marbles
           if (cellValue !== null) {
             // Marble should exist - add if it doesn't
             if (!marbleRefs.current[z][y][x]) {
-              const position = gameToWorldPosition({ x, y, z }, CELL_SIZE, SPACING);
+              const position = gameToWorldPosition({ x, y, z }, CELL_SIZE, SPACING, boardSize);
               const geometry = new THREE.SphereGeometry(MARBLE_RADIUS, 32, 32);
               const material = createMarbleMaterial(cellValue);
               const marble = new THREE.Mesh(geometry, material);
@@ -233,8 +246,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       }
       
       // Get start and end positions
-      const startPos = gameToWorldPosition(winningLine.positions[0], CELL_SIZE, SPACING);
-      const endPos = gameToWorldPosition(winningLine.positions[2], CELL_SIZE, SPACING);
+      const startPos = gameToWorldPosition(winningLine.positions[0], CELL_SIZE, SPACING, boardSize);
+      const endPos = gameToWorldPosition(winningLine.positions[winningLine.positions.length - 1], CELL_SIZE, SPACING, boardSize);
       
       // Create winning line
       const line = createWinningLine(startPos, endPos);
@@ -245,9 +258,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
       sceneRef.current.remove(winningLineRef.current);
       winningLineRef.current = null;
     }
-  }, [board, hoveredCell, winningLine]);
+  }, [board, hoveredCell, winningLine, boardSize]);
   
-  // Handle mouse movement for hover effects
+  // Handle mouse movement for hover effects and wheel for zoom
   useEffect(() => {
     if (!mountRef.current) return;
     
@@ -263,7 +276,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
       
       // Find all cell objects
-      const cells = [];
+      const cells: THREE.Object3D[] = [];
       sceneRef.current.traverse((object) => {
         if (object instanceof THREE.Mesh && object.userData.type === 'cell') {
           cells.push(object);
@@ -289,19 +302,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
       }
     };
     
-    const handleMouseClick = (event: MouseEvent) => {
-      if (hoveredCell && gameState === 'playing') {
+    // Instead of click, handle space bar press for placing the marble
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === 'Space' && hoveredCell && gameState === 'playing') {
+        event.preventDefault();
         onCellClick(hoveredCell);
       }
     };
     
     // Add event listeners
     mountRef.current.addEventListener('mousemove', handleMouseMove);
-    mountRef.current.addEventListener('click', handleMouseClick);
+    window.addEventListener('keydown', handleKeyDown);
     
     return () => {
       mountRef.current?.removeEventListener('mousemove', handleMouseMove);
-      mountRef.current?.removeEventListener('click', handleMouseClick);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [board, gameState, hoveredCell, onCellClick]);
 

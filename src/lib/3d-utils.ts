@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import type { Position } from './game-logic';
 
 // Helper to convert our game coordinates to Three.js coordinates
-export function gameToWorldPosition(position: Position, cellSize: number = 1, spacing: number = 0.2): THREE.Vector3 {
+export function gameToWorldPosition(position: Position, cellSize: number = 1, spacing: number = 0.2, boardSize: number = 3): THREE.Vector3 {
   // Center the grid around origin
-  const offset = ((3 - 1) * (cellSize + spacing)) / 2;
+  const offset = ((boardSize - 1) * (cellSize + spacing)) / 2;
   
   // Convert from game coordinates to world space
   const x = position.x * (cellSize + spacing) - offset;

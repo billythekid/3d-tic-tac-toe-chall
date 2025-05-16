@@ -3,14 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Player } from '../lib/game-logic';
-import { ArrowCounterClockwise } from '@phosphor-icons/react';
+import { Player, OpponentType } from '../lib/game-logic';
+import { ArrowCounterClockwise, Gear, Robot } from '@phosphor-icons/react';
 
 interface GameControlsProps {
   currentPlayer: Player;
   gameState: 'playing' | 'won' | 'draw';
   winner: Player | null;
   onRestart: () => void;
+  aiThinking?: boolean;
+  onOpenSettings: () => void;
+  opponentType: OpponentType;
 }
 
 const GameControls: React.FC<GameControlsProps> = ({
@@ -18,6 +21,9 @@ const GameControls: React.FC<GameControlsProps> = ({
   gameState,
   winner,
   onRestart,
+  aiThinking = false,
+  onOpenSettings,
+  opponentType,
 }) => {
   return (
     <Card className="w-full">
@@ -60,11 +66,23 @@ const GameControls: React.FC<GameControlsProps> = ({
                     }`}
                   />
                   <span className="font-medium">
-                    Player {currentPlayer}
+                    {currentPlayer === 1 || opponentType === 'human' ? (
+                      `Player ${currentPlayer}`
+                    ) : (
+                      <span className="flex items-center">
+                        <Robot className="mr-1" /> AI {aiThinking && "(thinking...)"}
+                      </span>
+                    )}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Click on an empty cell to place your marble
+                  {aiThinking ? 
+                    "AI is making a move..." : 
+                    (currentPlayer === 1 || opponentType === 'human' ? 
+                      "Press space bar to place your marble when hovering over a cell" :
+                      "Waiting for AI to move..."
+                    )
+                  }
                 </p>
               </>
             ) : gameState === 'won' ? (
@@ -77,7 +95,9 @@ const GameControls: React.FC<GameControlsProps> = ({
                     }`}
                   />
                   <span className="font-medium">
-                    Player {winner} wins!
+                    {winner === 1 || opponentType === 'human' ? 
+                      `Player ${winner} wins!` : 
+                      "AI wins!"}
                   </span>
                 </div>
               </>
@@ -99,7 +119,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Form a line of 3 marbles to win</span>
+                <span>Form a line of marbles to win</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
@@ -109,16 +129,35 @@ const GameControls: React.FC<GameControlsProps> = ({
                 <span className="mr-2">•</span>
                 <span>Rotate the board by dragging with your mouse</span>
               </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>Use mouse wheel to zoom in and out</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>Press space bar to place your marble</span>
+              </li>
             </ul>
           </div>
           
-          <Button 
-            onClick={onRestart} 
-            className="w-full"
-          >
-            <ArrowCounterClockwise className="mr-2" weight="bold" />
-            New Game
-          </Button>
+          <div className="flex space-x-3">
+            <Button 
+              onClick={onRestart} 
+              className="flex-1"
+            >
+              <ArrowCounterClockwise className="mr-2" weight="bold" />
+              New Game
+            </Button>
+            
+            <Button 
+              onClick={onOpenSettings} 
+              variant="outline" 
+              className="flex-1"
+            >
+              <Gear className="mr-2" weight="bold" />
+              Settings
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

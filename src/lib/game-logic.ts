@@ -1,8 +1,9 @@
 export type Player = 1 | 2;
 export type Cell = Player | null;
 export type GameState = 'playing' | 'won' | 'draw';
+export type OpponentType = 'human' | 'ai';
 
-// 3D board represented as a 3×3×3 array
+// 3D board represented as a size×size×size array
 export type Board = Cell[][][];
 
 // Position in 3D space
@@ -18,11 +19,25 @@ export interface WinningLine {
   player: Player;
 }
 
-// Creates an empty 3×3×3 board
-export function createEmptyBoard(): Board {
-  return Array(3).fill(null).map(() =>
-    Array(3).fill(null).map(() =>
-      Array(3).fill(null)
+// Game settings
+export interface GameSettings {
+  boardSize: number;        // 3-8
+  opponentType: OpponentType;
+  aiDifficulty: number;     // 1-50
+}
+
+// Default game settings
+export const DEFAULT_SETTINGS: GameSettings = {
+  boardSize: 3,
+  opponentType: 'human',
+  aiDifficulty: 25
+};
+
+// Creates an empty board of the specified size
+export function createEmptyBoard(size: number = 3): Board {
+  return Array(size).fill(null).map(() =>
+    Array(size).fill(null).map(() =>
+      Array(size).fill(null)
     )
   );
 }
@@ -42,9 +57,10 @@ export function placeMarker(board: Board, position: Position, player: Player): B
 // Checks if the position is valid and empty
 export function isValidMove(board: Board, position: Position): boolean {
   const { x, y, z } = position;
+  const size = board.length;
   
   // Check if position is within bounds
-  if (x < 0 || x > 2 || y < 0 || y > 2 || z < 0 || z > 2) {
+  if (x < 0 || x >= size || y < 0 || y >= size || z < 0 || z >= size) {
     return false;
   }
   
@@ -52,128 +68,149 @@ export function isValidMove(board: Board, position: Position): boolean {
   return board[z][y][x] === null;
 }
 
-// All possible win lines in a 3D tic-tac-toe
-export function getAllWinLines(): Position[][] {
+// All possible win lines in a size×size×size tic-tac-toe
+export function getAllWinLines(size: number = 3): Position[][] {
   const lines: Position[][] = [];
   
-  // 1. Straight lines along each axis (27 lines)
-  // X-axis lines (9)
-  for (let y = 0; y < 3; y++) {
-    for (let z = 0; z < 3; z++) {
-      lines.push([
-        { x: 0, y, z },
-        { x: 1, y, z },
-        { x: 2, y, z }
-      ]);
+  // 1. Straight lines along each axis (size² * 3 lines)
+  // X-axis lines
+  for (let y = 0; y < size; y++) {
+    for (let z = 0; z < size; z++) {
+      const line: Position[] = [];
+      for (let x = 0; x < size; x++) {
+        line.push({ x, y, z });
+      }
+      lines.push(line);
     }
   }
   
-  // Y-axis lines (9)
-  for (let x = 0; x < 3; x++) {
-    for (let z = 0; z < 3; z++) {
-      lines.push([
-        { x, y: 0, z },
-        { x, y: 1, z },
-        { x, y: 2, z }
-      ]);
+  // Y-axis lines
+  for (let x = 0; x < size; x++) {
+    for (let z = 0; z < size; z++) {
+      const line: Position[] = [];
+      for (let y = 0; y < size; y++) {
+        line.push({ x, y, z });
+      }
+      lines.push(line);
     }
   }
   
-  // Z-axis lines (9)
-  for (let x = 0; x < 3; x++) {
-    for (let y = 0; y < 3; y++) {
-      lines.push([
-        { x, y, z: 0 },
-        { x, y, z: 1 },
-        { x, y, z: 2 }
-      ]);
+  // Z-axis lines
+  for (let x = 0; x < size; x++) {
+    for (let y = 0; y < size; y++) {
+      const line: Position[] = [];
+      for (let z = 0; z < size; z++) {
+        line.push({ x, y, z });
+      }
+      lines.push(line);
     }
   }
   
-  // 2. Diagonals in each plane (18 lines)
-  // XY plane diagonals (6)
-  for (let z = 0; z < 3; z++) {
-    lines.push([
-      { x: 0, y: 0, z },
-      { x: 1, y: 1, z },
-      { x: 2, y: 2, z }
-    ]);
-    lines.push([
-      { x: 0, y: 2, z },
-      { x: 1, y: 1, z },
-      { x: 2, y: 0, z }
-    ]);
+  // 2. Diagonals in each plane (size * 3 * 2 lines)
+  // XY plane diagonals
+  for (let z = 0; z < size; z++) {
+    // Main diagonal (top-left to bottom-right)
+    const diag1: Position[] = [];
+    // Secondary diagonal (bottom-left to top-right)
+    const diag2: Position[] = [];
+    
+    for (let i = 0; i < size; i++) {
+      diag1.push({ x: i, y: i, z });
+      diag2.push({ x: i, y: size - 1 - i, z });
+    }
+    
+    lines.push(diag1);
+    lines.push(diag2);
   }
   
-  // XZ plane diagonals (6)
-  for (let y = 0; y < 3; y++) {
-    lines.push([
-      { x: 0, y, z: 0 },
-      { x: 1, y, z: 1 },
-      { x: 2, y, z: 2 }
-    ]);
-    lines.push([
-      { x: 0, y, z: 2 },
-      { x: 1, y, z: 1 },
-      { x: 2, y, z: 0 }
-    ]);
+  // XZ plane diagonals
+  for (let y = 0; y < size; y++) {
+    // Main diagonal
+    const diag1: Position[] = [];
+    // Secondary diagonal
+    const diag2: Position[] = [];
+    
+    for (let i = 0; i < size; i++) {
+      diag1.push({ x: i, y, z: i });
+      diag2.push({ x: i, y, z: size - 1 - i });
+    }
+    
+    lines.push(diag1);
+    lines.push(diag2);
   }
   
-  // YZ plane diagonals (6)
-  for (let x = 0; x < 3; x++) {
-    lines.push([
-      { x, y: 0, z: 0 },
-      { x, y: 1, z: 1 },
-      { x, y: 2, z: 2 }
-    ]);
-    lines.push([
-      { x, y: 0, z: 2 },
-      { x, y: 1, z: 1 },
-      { x, y: 2, z: 0 }
-    ]);
+  // YZ plane diagonals
+  for (let x = 0; x < size; x++) {
+    // Main diagonal
+    const diag1: Position[] = [];
+    // Secondary diagonal
+    const diag2: Position[] = [];
+    
+    for (let i = 0; i < size; i++) {
+      diag1.push({ x, y: i, z: i });
+      diag2.push({ x, y: i, z: size - 1 - i });
+    }
+    
+    lines.push(diag1);
+    lines.push(diag2);
   }
   
   // 3. Corner to corner diagonals (4 lines)
-  lines.push([
-    { x: 0, y: 0, z: 0 },
-    { x: 1, y: 1, z: 1 },
-    { x: 2, y: 2, z: 2 }
-  ]);
+  // Main diagonal (0,0,0) to (size-1,size-1,size-1)
+  const mainDiagonal: Position[] = [];
+  for (let i = 0; i < size; i++) {
+    mainDiagonal.push({ x: i, y: i, z: i });
+  }
+  lines.push(mainDiagonal);
   
-  lines.push([
-    { x: 0, y: 0, z: 2 },
-    { x: 1, y: 1, z: 1 },
-    { x: 2, y: 2, z: 0 }
-  ]);
+  // Diagonal from (0,0,size-1) to (size-1,size-1,0)
+  const diag2: Position[] = [];
+  for (let i = 0; i < size; i++) {
+    diag2.push({ x: i, y: i, z: size - 1 - i });
+  }
+  lines.push(diag2);
   
-  lines.push([
-    { x: 0, y: 2, z: 0 },
-    { x: 1, y: 1, z: 1 },
-    { x: 2, y: 0, z: 2 }
-  ]);
+  // Diagonal from (0,size-1,0) to (size-1,0,size-1)
+  const diag3: Position[] = [];
+  for (let i = 0; i < size; i++) {
+    diag3.push({ x: i, y: size - 1 - i, z: i });
+  }
+  lines.push(diag3);
   
-  lines.push([
-    { x: 0, y: 2, z: 2 },
-    { x: 1, y: 1, z: 1 },
-    { x: 2, y: 0, z: 0 }
-  ]);
+  // Diagonal from (0,size-1,size-1) to (size-1,0,0)
+  const diag4: Position[] = [];
+  for (let i = 0; i < size; i++) {
+    diag4.push({ x: i, y: size - 1 - i, z: size - 1 - i });
+  }
+  lines.push(diag4);
   
   return lines;
 }
 
 // Check if the game is won
 export function checkForWin(board: Board): WinningLine | null {
-  const winLines = getAllWinLines();
+  const size = board.length;
+  const winLines = getAllWinLines(size);
   
   for (const line of winLines) {
-    const cell1 = board[line[0].z][line[0].y][line[0].x];
-    const cell2 = board[line[1].z][line[1].y][line[1].x];
-    const cell3 = board[line[2].z][line[2].y][line[2].x];
+    const firstPos = line[0];
+    const player = board[firstPos.z][firstPos.y][firstPos.x];
     
-    if (cell1 !== null && cell1 === cell2 && cell2 === cell3) {
+    if (player === null) continue;
+    
+    let isWinningLine = true;
+    for (let i = 1; i < line.length; i++) {
+      const pos = line[i];
+      if (board[pos.z][pos.y][pos.x] !== player) {
+        isWinningLine = false;
+        break;
+      }
+    }
+    
+    if (isWinningLine) {
       return {
         positions: line,
-        player: cell1
+        player: player
       };
     }
   }
@@ -183,9 +220,10 @@ export function checkForWin(board: Board): WinningLine | null {
 
 // Check if the board is full (draw)
 export function isBoardFull(board: Board): boolean {
-  for (let z = 0; z < 3; z++) {
-    for (let y = 0; y < 3; y++) {
-      for (let x = 0; x < 3; x++) {
+  const size = board.length;
+  for (let z = 0; z < size; z++) {
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
         if (board[z][y][x] === null) {
           return false;
         }
@@ -194,4 +232,20 @@ export function isBoardFull(board: Board): boolean {
   }
   
   return true;
+}
+
+// Gets all available moves on the board
+export function getAvailableMoves(board: Board): Position[] {
+  const moves: Position[] = [];
+  const size = board.length;
+  for (let z = 0; z < size; z++) {
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        if (board[z][y][x] === null) {
+          moves.push({ x, y, z });
+        }
+      }
+    }
+  }
+  return moves;
 }

@@ -2,17 +2,20 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Position, Player } from '../lib/game-logic';
+import { Robot } from '@phosphor-icons/react';
 
 interface Move {
   player: Player;
   position: Position;
+  isAI?: boolean;
 }
 
 interface GameHistoryProps {
   moves: Move[];
+  opponentType?: 'human' | 'ai';
 }
 
-const GameHistory: React.FC<GameHistoryProps> = ({ moves }) => {
+const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'human' }) => {
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
@@ -35,8 +38,14 @@ const GameHistory: React.FC<GameHistoryProps> = ({ moves }) => {
                     }`} 
                   />
                   <div>
-                    <span className="font-medium text-sm">
-                      Player {move.player}
+                    <span className="font-medium text-sm flex items-center">
+                      {move.player === 2 && opponentType === 'ai' ? (
+                        <>
+                          <Robot className="mr-1" size={14} /> AI
+                        </>
+                      ) : (
+                        `Player ${move.player}`
+                      )}
                     </span>
                     <span className="text-xs text-muted-foreground ml-2">
                       Position ({move.position.x}, {move.position.y}, {move.position.z})
