@@ -97,9 +97,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = aiPlayer;
-      const eval = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
-      maxEval = Math.max(maxEval, eval);
-      alpha = Math.max(alpha, eval);
+      const evalScore = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
+      maxEval = Math.max(maxEval, evalScore);
+      alpha = Math.max(alpha, evalScore);
       if (beta <= alpha) break;
     }
     return maxEval;
@@ -108,9 +108,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = opponentPlayer;
-      const eval = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
-      minEval = Math.min(minEval, eval);
-      beta = Math.min(beta, eval);
+      const evalScore = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
+      minEval = Math.min(minEval, evalScore);
+      beta = Math.min(beta, evalScore);
       if (beta <= alpha) break;
     }
     return minEval;
