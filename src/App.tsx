@@ -10,14 +10,16 @@ import {
   WinningLine,
   GameSettings,
   DEFAULT_SETTINGS,
-  OpponentType
+  PLAYER_COLORS,
+  AI_COLORS,
 } from './lib/game-logic';
 import { findBestMove } from './lib/ai';
+import { getUserName, getUserAvatar } from './lib/github-api';
 import GameBoard from './components/GameBoard';
 import GameControls from './components/GameControls';
 import GameHistory from './components/GameHistory';
 import GameHeader from './components/GameHeader';
-import GameSettingsMenu from './components/GameSettings';
+import GameScoreboard from './components/GameScoreboard';
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useKV } from '@github/spark/hooks';
@@ -30,7 +32,8 @@ interface Move {
 function App() {
   // Game settings
   const [settings, setSettings] = useKV<GameSettings>("tictactoe-settings", DEFAULT_SETTINGS);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [userName, setUserName] = useState<string>(settings.playerName || 'Player');
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   
   // Game state (persisted via KV store)
   const [board, setBoard] = useKV<Board>("tictactoe-board", createEmptyBoard());
@@ -41,6 +44,27 @@ function App() {
 
   // AI processing state
   const [aiThinking, setAiThinking] = useState(false);
+
+  // Fetch user data on load
+  useEffect(() => {
+    async function fetchUserData() {
+      const name = await getUserName();
+      const avatar = await getUserAvatar();
+      
+      setUserName(name);
+      setUserAvatar(avatar);
+      
+      // Update settings with GitHub username
+      if (name !== settings.playerName) {
+        setSettings({
+          ...settings,
+          playerName: name
+        });
+      }
+    }
+    
+    fetchUserData();
+  }, []);
   
   useEffect(() => {
     // Check for game status updates each time the board changes
@@ -50,7 +74,38 @@ function App() {
       if (win) {
         setWinningLine(win);
         setGameState('won');
-        toast.success(`Player ${win.player} wins!`);
+        
+        // Update player score if player wins
+        if (win.player === 1) {
+          const newScore = settings.playerScore + settings.currentLevel;
+          const nextLevelTarget = settings.currentLevel * 3;
+          
+          // Check if player should level up
+          if (newScore >= nextLevelTarget) {
+            const newLevel = Math.min(20, settings.currentLevel + 1);
+            const newDifficulty = Math.min(20, newLevel); // 1:1 mapping of level to difficulty
+            
+            setSettings({
+              ...settings,
+              playerScore: newScore - nextLevelTarget, // Reset score, carrying over excess
+              currentLevel: newLevel,
+              aiDifficulty: newDifficulty
+            });
+            
+            toast.success(`Level up! You are now level ${newLevel}`);
+          } else {
+            // Just update score
+            setSettings({
+              ...settings,
+              playerScore: newScore
+            });
+          }
+          
+          toast.success(`Player wins! +${settings.currentLevel} points`);
+        } else {
+          toast.info(`AI wins this round!`);
+        }
+        
         return;
       }
       
@@ -62,11 +117,11 @@ function App() {
       }
       
       // If it's AI's turn, make AI move
-      if (settings.opponentType === 'ai' && currentPlayer === 2 && !aiThinking) {
+      if (currentPlayer === 2 && !aiThinking) {
         makeAiMove();
       }
     }
-  }, [board, gameState, currentPlayer, settings.opponentType, aiThinking]);
+  }, [board, gameState, currentPlayer, aiThinking]);
   
   // Make AI move
   const makeAiMove = async () => {
@@ -100,7 +155,7 @@ function App() {
     if (gameState !== 'playing' || aiThinking) return;
     
     // If it's AI's turn and the player tries to move, ignore
-    if (settings.opponentType === 'ai' && currentPlayer === 2) return;
+    if (currentPlayer === 2) return;
     
     // Create a new board with the player's marker
     const newBoard = placeMarker(board, position, currentPlayer);
@@ -111,11 +166,11 @@ function App() {
     setMoves([...moves, newMove]);
     
     // Switch players
-    setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
+    setCurrentPlayer(2); // AI's turn
   };
 
-  // Apply new settings and restart the game
-  const handleApplySettings = () => {
+  // Start a new game
+  const handleNewGame = () => {
     // Create a new board
     setBoard(createEmptyBoard());
     setCurrentPlayer(1);
@@ -123,21 +178,7 @@ function App() {
     setWinningLine(null);
     setMoves([]);
     
-    if (settings.opponentType === 'ai') {
-      toast.info(`Playing against AI (Difficulty: ${settings.aiDifficulty}/50)`);
-    } else {
-      toast.info("Playing against human opponent");
-    }
-  };
-
-  // Restart the game
-  const handleRestart = () => {
-    setBoard(createEmptyBoard());
-    setCurrentPlayer(1);
-    setGameState('playing');
-    setWinningLine(null);
-    setMoves([]);
-    toast.info("New game started!");
+    toast.info(`Level ${settings.currentLevel}: Playing against AI (Difficulty: ${settings.aiDifficulty}/20)`);
   };
 
   return (
@@ -153,32 +194,33 @@ function App() {
             gameState={gameState}
             winningLine={winningLine}
             onCellClick={handleCellClick}
+            level={settings.currentLevel}
           />
         </div>
         
         {/* Game controls and info */}
         <div className="w-full lg:w-80 space-y-6">
-          {settingsOpen ? (
-            <GameSettingsMenu
-              settings={settings}
-              onSettingsChange={setSettings}
-              onApplySettings={handleApplySettings}
-              isOpen={settingsOpen}
-              onOpenChange={setSettingsOpen}
-            />
-          ) : (
-            <GameControls
-              currentPlayer={currentPlayer}
-              gameState={gameState}
-              winner={winningLine?.player || null}
-              onRestart={handleRestart}
-              aiThinking={aiThinking}
-              onOpenSettings={() => setSettingsOpen(true)}
-              opponentType={settings.opponentType}
-            />
-          )}
+          <GameScoreboard 
+            settings={settings}
+            userName={userName}
+            userAvatar={userAvatar}
+          />
           
-          <GameHistory moves={moves} opponentType={settings.opponentType} />
+          <GameControls
+            currentPlayer={currentPlayer}
+            gameState={gameState}
+            winner={winningLine?.player || null}
+            onRestart={handleNewGame}
+            aiThinking={aiThinking}
+            onOpenSettings={handleNewGame} // Now starts a new game instead
+            opponentType="ai"
+            level={settings.currentLevel}
+          />
+          
+          <GameHistory 
+            moves={moves} 
+            opponentType="ai"
+          />
         </div>
       </div>
       
@@ -186,5 +228,7 @@ function App() {
     </div>
   );
 }
+
+export default App
 
 export default App

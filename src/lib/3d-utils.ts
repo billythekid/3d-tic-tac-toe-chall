@@ -15,10 +15,13 @@ export function gameToWorldPosition(position: Position, cellSize: number = 1, sp
 }
 
 // Create a material for player marbles with nice glossy effect
-export function createMarbleMaterial(player: 1 | 2): THREE.Material {
-  // Player 1 - Ruby red
-  // Player 2 - Cyan blue
-  const color = player === 1 ? 0xe11d48 : 0x0891b2;
+export function createMarbleMaterial(player: 1 | 2, level: number = 1): THREE.Material {
+  // Get colors from color arrays based on level (1-indexed)
+  const colorIndex = Math.max(0, Math.min(19, level - 1));
+  const cssColorVar = player === 1 ? `var(--player-color-${colorIndex})` : `var(--ai-color-${colorIndex})`;
+  
+  // Get the computed color from CSS
+  const color = getComputedColor(cssColorVar);
   
   const material = new THREE.MeshStandardMaterial({
     color,
@@ -30,12 +33,37 @@ export function createMarbleMaterial(player: 1 | 2): THREE.Material {
   return material;
 }
 
+// Helper function to get computed color from CSS variable
+function getComputedColor(cssVar: string): number {
+  // Default fallback colors if CSS variable not available
+  const fallbacks = {
+    1: 0xe11d48, // Ruby red (player)
+    2: 0x0891b2  // Cyan blue (AI)
+  };
+  
+  try {
+    // For client-side rendering where document is available
+    if (typeof document !== 'undefined') {
+      const style = getComputedStyle(document.documentElement);
+      const color = style.getPropertyValue(cssVar.replace('var(', '').replace(')', '').trim());
+      if (color) {
+        return new THREE.Color(color).getHex();
+      }
+    }
+  } catch (e) {
+    console.error('Error getting computed color:', e);
+  }
+  
+  // Fallback based on player
+  return cssVar.includes('player-color') ? fallbacks[1] : fallbacks[2];
+}
+
 // Create a cell material
-export function createCellMaterial(hovered: boolean = false, inWinningLine: boolean = false): THREE.Material {
+export function createCellMaterial(hovered: boolean = false, inWinningLine: boolean = false, hasMarble: boolean = false): THREE.Material {
   return new THREE.MeshStandardMaterial({
     color: inWinningLine ? 0x8b5cf6 : (hovered ? 0x94a3b8 : 0x64748b),
     transparent: true,
-    opacity: 0.3,
+    opacity: hasMarble ? 0 : 0.15, // Make completely transparent when a marble is placed
     side: THREE.DoubleSide,
     metalness: 0.1,
     roughness: 0.8

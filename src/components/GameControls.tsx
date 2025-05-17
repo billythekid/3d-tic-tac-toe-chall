@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Player, OpponentType } from '../lib/game-logic';
-import { ArrowCounterClockwise, Gear, Robot } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, Gear, Robot, Brain } from '@phosphor-icons/react';
 
 interface GameControlsProps {
   currentPlayer: Player;
@@ -14,6 +14,7 @@ interface GameControlsProps {
   aiThinking?: boolean;
   onOpenSettings: () => void;
   opponentType: OpponentType;
+  level: number;
 }
 
 const GameControls: React.FC<GameControlsProps> = ({
@@ -24,6 +25,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   aiThinking = false,
   onOpenSettings,
   opponentType,
+  level
 }) => {
   return (
     <Card className="w-full">
@@ -61,13 +63,16 @@ const GameControls: React.FC<GameControlsProps> = ({
                 <h3 className="text-lg font-medium">Current Turn</h3>
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-5 h-5 rounded-full ${
-                      currentPlayer === 1 ? "player1-marble" : "player2-marble"
-                    }`}
+                    className="w-5 h-5 rounded-full"
+                    style={{ 
+                      background: currentPlayer === 1 
+                        ? `var(--player-color-${level-1})` 
+                        : `var(--ai-color-${level-1})`
+                    }}
                   />
                   <span className="font-medium">
-                    {currentPlayer === 1 || opponentType === 'human' ? (
-                      `Player ${currentPlayer}`
+                    {currentPlayer === 1 ? (
+                      `You`
                     ) : (
                       <span className="flex items-center">
                         <Robot className="mr-1" /> AI {aiThinking && "(thinking...)"}
@@ -78,7 +83,7 @@ const GameControls: React.FC<GameControlsProps> = ({
                 <p className="text-sm text-muted-foreground">
                   {aiThinking ? 
                     "AI is making a move..." : 
-                    (currentPlayer === 1 || opponentType === 'human' ? 
+                    (currentPlayer === 1 ? 
                       "Press space bar to place your marble when hovering over a cell" :
                       "Waiting for AI to move..."
                     )
@@ -90,13 +95,16 @@ const GameControls: React.FC<GameControlsProps> = ({
                 <h3 className="text-lg font-medium">Winner</h3>
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-5 h-5 rounded-full ${
-                      winner === 1 ? "player1-marble" : "player2-marble"
-                    }`}
+                    className="w-5 h-5 rounded-full" 
+                    style={{ 
+                      background: winner === 1 
+                        ? `var(--player-color-${level-1})` 
+                        : `var(--ai-color-${level-1})`
+                    }}
                   />
                   <span className="font-medium">
-                    {winner === 1 || opponentType === 'human' ? 
-                      `Player ${winner} wins!` : 
+                    {winner === 1 ? 
+                      `You win!` : 
                       "AI wins!"}
                   </span>
                 </div>
@@ -109,6 +117,19 @@ const GameControls: React.FC<GameControlsProps> = ({
                 </p>
               </div>
             )}
+          </div>
+          
+          <Separator />
+          
+          {/* Level info */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Brain weight="duotone" size={20} className="text-primary" />
+              <span className="font-medium">Level {level}</span>
+            </div>
+            <Badge variant="outline" className="px-3 py-1">
+              Difficulty: {level}/20
+            </Badge>
           </div>
           
           <Separator />
@@ -143,19 +164,10 @@ const GameControls: React.FC<GameControlsProps> = ({
           <div className="flex space-x-3">
             <Button 
               onClick={onRestart} 
-              className="flex-1"
+              className="w-full"
             >
               <ArrowCounterClockwise className="mr-2" weight="bold" />
               New Game
-            </Button>
-            
-            <Button 
-              onClick={onOpenSettings} 
-              variant="outline" 
-              className="flex-1"
-            >
-              <Gear className="mr-2" weight="bold" />
-              Settings
             </Button>
           </div>
         </div>
@@ -163,5 +175,7 @@ const GameControls: React.FC<GameControlsProps> = ({
     </Card>
   );
 };
+
+export default GameControls;
 
 export default GameControls;

@@ -154,9 +154,9 @@ function getRandomMove(board: Board): Position | null {
  * @returns The best position to play, or null if no moves available
  */
 export function findBestMove(board: Board, aiPlayer: Player, difficultyLevel: number): Position | null {
-  // Scale the difficulty level to our algorithm parameters
-  const maxDepth = Math.min(5, Math.floor(difficultyLevel / 10) + 1); // 1-50 -> 1-5 depth
-  const randomChance = Math.max(0, 1 - (difficultyLevel / 50)); // 1-50 -> 0.98-0 random chance
+  // Scale the difficulty level to our algorithm parameters (1-20 scale)
+  const maxDepth = Math.min(4, Math.floor(difficultyLevel / 5) + 1); // 1-20 -> 1-4 depth
+  const randomChance = Math.max(0, 1 - (difficultyLevel / 20)); // 1-20 -> 0.95-0 random chance
   
   // For very low difficulties, just play randomly
   if (Math.random() < randomChance) {

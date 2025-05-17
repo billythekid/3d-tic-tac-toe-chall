@@ -1,7 +1,7 @@
 export type Player = 1 | 2;
 export type Cell = Player | null;
 export type GameState = 'playing' | 'won' | 'draw';
-export type OpponentType = 'human' | 'ai';
+export type OpponentType = 'ai';  // Only AI opponent now
 
 // 3D board represented as a size×size×size array
 export type Board = Cell[][][];
@@ -22,13 +22,67 @@ export interface WinningLine {
 // Game settings
 export interface GameSettings {
   opponentType: OpponentType;
-  aiDifficulty: number;     // 1-50
+  aiDifficulty: number;     // 1-20 (now reduced range)
+  currentLevel: number;     // Game level (1-20)
+  playerName: string;       // Player name from GitHub API
+  playerScore: number;      // Player's current score
 }
+
+// Available player marble colors based on level
+export const PLAYER_COLORS = [
+  'oklch(0.62 0.22 25)',    // Ruby red (default)
+  'oklch(0.7 0.2 50)',      // Orange
+  'oklch(0.8 0.18 85)',     // Amber
+  'oklch(0.85 0.2 120)',    // Yellow-green
+  'oklch(0.7 0.2 140)',     // Green
+  'oklch(0.65 0.2 170)',    // Teal
+  'oklch(0.65 0.15 200)',   // Cyan blue
+  'oklch(0.55 0.15 250)',   // Royal blue
+  'oklch(0.5 0.2 280)',     // Indigo
+  'oklch(0.6 0.25 300)',    // Purple
+  'oklch(0.7 0.25 320)',    // Magenta
+  'oklch(0.65 0.28 350)',   // Pink
+  'oklch(0.8 0.1 0)',       // Soft red
+  'oklch(0.5 0.1 100)',     // Olive
+  'oklch(0.45 0.15 180)',   // Deep sea
+  'oklch(0.35 0.15 240)',   // Midnight blue
+  'oklch(0.4 0.15 270)',    // Deep purple
+  'oklch(0.3 0.1 290)',     // Dark plum
+  'oklch(0.7 0.05 30)',     // Muted brown
+  'oklch(0.9 0.05 60)',     // Gold
+];
+
+// AI marble colors (contrasting pairs with player colors)
+export const AI_COLORS = [
+  'oklch(0.65 0.15 200)',   // Cyan blue (contrasts with Ruby red)
+  'oklch(0.55 0.15 250)',   // Royal blue (contrasts with Orange)
+  'oklch(0.5 0.2 280)',     // Indigo (contrasts with Amber)
+  'oklch(0.6 0.25 300)',    // Purple (contrasts with Yellow-green)
+  'oklch(0.7 0.25 320)',    // Magenta (contrasts with Green)
+  'oklch(0.65 0.28 350)',   // Pink (contrasts with Teal)
+  'oklch(0.62 0.22 25)',    // Ruby red (contrasts with Cyan blue)
+  'oklch(0.7 0.2 50)',      // Orange (contrasts with Royal blue)
+  'oklch(0.8 0.18 85)',     // Amber (contrasts with Indigo)
+  'oklch(0.85 0.2 120)',    // Yellow-green (contrasts with Purple)
+  'oklch(0.7 0.2 140)',     // Green (contrasts with Magenta)
+  'oklch(0.65 0.2 170)',    // Teal (contrasts with Pink)
+  'oklch(0.5 0.1 300)',     // Lavender (contrasts with Soft red)
+  'oklch(0.7 0.2 200)',     // Bright aqua (contrasts with Olive)
+  'oklch(0.8 0.15 100)',    // Lime (contrasts with Deep sea)
+  'oklch(0.75 0.25 50)',    // Bright orange (contrasts with Midnight blue)
+  'oklch(0.8 0.2 80)',      // Yellow (contrasts with Deep purple)
+  'oklch(0.85 0.15 140)',   // Mint (contrasts with Dark plum)
+  'oklch(0.5 0.15 230)',    // Azure (contrasts with Muted brown)
+  'oklch(0.4 0.2 270)',     // Violet (contrasts with Gold)
+];
 
 // Default game settings
 export const DEFAULT_SETTINGS: GameSettings = {
-  opponentType: 'human',
-  aiDifficulty: 25
+  opponentType: 'ai',
+  aiDifficulty: 1,  // Start at easiest difficulty (level 1)
+  currentLevel: 1,  // Start at level 1
+  playerName: 'Player',
+  playerScore: 0,
 };
 
 // Creates an empty board

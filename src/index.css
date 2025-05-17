@@ -25,12 +25,15 @@
   /* Action colors */
   --primary: oklch(0.25 0.12 270); /* Deep indigo */
   --primary-foreground: oklch(0.98 0.005 240); /* Off-white on primary */
+  --primary-rgb: 37, 18, 139;  /* RGB equivalent for transparency */
   
   --secondary: oklch(0.6 0.03 240); /* Soft slate */
   --secondary-foreground: oklch(0.98 0.015 240); /* Slightly off-white */
+  --secondary-rgb: 153, 153, 170; /* RGB equivalent for transparency */
   
   --accent: oklch(0.6 0.19 280); /* Vibrant purple */
   --accent-foreground: oklch(0.98 0.005 240);
+  --accent-rgb: 139, 92, 246; /* RGB equivalent for transparency */
   
   --destructive: oklch(0.62 0.22 25); /* Ruby red */
   --destructive-foreground: oklch(0.98 0.005 240);
@@ -100,6 +103,53 @@ body {
   box-shadow: 0 0 10px oklch(0.6 0.2 200 / 0.5);
 }
 
+/* Player colors - One for each level */
+:root {
+  /* Player marble colors (20 colors) */
+  --player-color-0: oklch(0.62 0.22 25);    /* Ruby red (default) */
+  --player-color-1: oklch(0.7 0.2 50);      /* Orange */
+  --player-color-2: oklch(0.8 0.18 85);     /* Amber */
+  --player-color-3: oklch(0.85 0.2 120);    /* Yellow-green */
+  --player-color-4: oklch(0.7 0.2 140);     /* Green */
+  --player-color-5: oklch(0.65 0.2 170);    /* Teal */
+  --player-color-6: oklch(0.65 0.15 200);   /* Cyan blue */
+  --player-color-7: oklch(0.55 0.15 250);   /* Royal blue */
+  --player-color-8: oklch(0.5 0.2 280);     /* Indigo */
+  --player-color-9: oklch(0.6 0.25 300);    /* Purple */
+  --player-color-10: oklch(0.7 0.25 320);   /* Magenta */
+  --player-color-11: oklch(0.65 0.28 350);  /* Pink */
+  --player-color-12: oklch(0.8 0.1 0);      /* Soft red */
+  --player-color-13: oklch(0.5 0.1 100);    /* Olive */
+  --player-color-14: oklch(0.45 0.15 180);  /* Deep sea */
+  --player-color-15: oklch(0.35 0.15 240);  /* Midnight blue */
+  --player-color-16: oklch(0.4 0.15 270);   /* Deep purple */
+  --player-color-17: oklch(0.3 0.1 290);    /* Dark plum */
+  --player-color-18: oklch(0.7 0.05 30);    /* Muted brown */
+  --player-color-19: oklch(0.9 0.05 60);    /* Gold */
+
+  /* AI marble colors - contrasting pairs with player colors */
+  --ai-color-0: oklch(0.65 0.15 200);   /* Cyan blue (contrasts with Ruby red) */
+  --ai-color-1: oklch(0.55 0.15 250);   /* Royal blue (contrasts with Orange) */
+  --ai-color-2: oklch(0.5 0.2 280);     /* Indigo (contrasts with Amber) */
+  --ai-color-3: oklch(0.6 0.25 300);    /* Purple (contrasts with Yellow-green) */
+  --ai-color-4: oklch(0.7 0.25 320);    /* Magenta (contrasts with Green) */
+  --ai-color-5: oklch(0.65 0.28 350);   /* Pink (contrasts with Teal) */
+  --ai-color-6: oklch(0.62 0.22 25);    /* Ruby red (contrasts with Cyan blue) */
+  --ai-color-7: oklch(0.7 0.2 50);      /* Orange (contrasts with Royal blue) */
+  --ai-color-8: oklch(0.8 0.18 85);     /* Amber (contrasts with Indigo) */
+  --ai-color-9: oklch(0.85 0.2 120);    /* Yellow-green (contrasts with Purple) */
+  --ai-color-10: oklch(0.7 0.2 140);    /* Green (contrasts with Magenta) */
+  --ai-color-11: oklch(0.65 0.2 170);   /* Teal (contrasts with Pink) */
+  --ai-color-12: oklch(0.5 0.1 300);    /* Lavender (contrasts with Soft red) */
+  --ai-color-13: oklch(0.7 0.2 200);    /* Bright aqua (contrasts with Olive) */
+  --ai-color-14: oklch(0.8 0.15 100);   /* Lime (contrasts with Deep sea) */
+  --ai-color-15: oklch(0.75 0.25 50);   /* Bright orange (contrasts with Midnight blue) */
+  --ai-color-16: oklch(0.8 0.2 80);     /* Yellow (contrasts with Deep purple) */
+  --ai-color-17: oklch(0.85 0.15 140);  /* Mint (contrasts with Dark plum) */
+  --ai-color-18: oklch(0.5 0.15 230);   /* Azure (contrasts with Muted brown) */
+  --ai-color-19: oklch(0.4 0.2 270);    /* Violet (contrasts with Gold) */
+}
+
 /* 3D grid cell styling */
 .grid-cell {
   transition: all 0.2s ease-out;
@@ -123,4 +173,17 @@ body {
     filter: brightness(1.5); 
     box-shadow: 0 0 15px var(--accent);
   }
+}
+
+/* Game Over colors with increased contrast */
+.bg-primary\/20 {
+  background-color: rgba(var(--primary-rgb), 0.3); /* Increased contrast */
+}
+
+.bg-secondary\/20 {
+  background-color: rgba(var(--secondary-rgb), 0.3); /* Increased contrast */
+}
+
+.bg-accent\/10 {
+  background-color: rgba(var(--accent-rgb), 0.2); /* Increased contrast */
 }

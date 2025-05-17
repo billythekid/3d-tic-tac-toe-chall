@@ -12,10 +12,10 @@ interface Move {
 
 interface GameHistoryProps {
   moves: Move[];
-  opponentType?: 'human' | 'ai';
+  opponentType?: 'ai';
 }
 
-const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'human' }) => {
+const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'ai' }) => {
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
@@ -32,19 +32,21 @@ const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'human'
                   key={index} 
                   className="flex items-center p-2 rounded-md bg-muted/30"
                 >
-                  <div 
-                    className={`w-4 h-4 rounded-full mr-3 ${
-                      move.player === 1 ? "player1-marble" : "player2-marble"
-                    }`} 
+                  <div className="w-4 h-4 rounded-full mr-3" 
+                    style={{
+                      background: move.player === 1 
+                        ? `var(--player-color-0)` // Default to first color
+                        : `var(--ai-color-0)`
+                    }}
                   />
                   <div>
                     <span className="font-medium text-sm flex items-center">
-                      {move.player === 2 && opponentType === 'ai' ? (
+                      {move.player === 2 ? (
                         <>
                           <Robot className="mr-1" size={14} /> AI
                         </>
                       ) : (
-                        `Player ${move.player}`
+                        `You`
                       )}
                     </span>
                     <span className="text-xs text-muted-foreground ml-2">
@@ -60,5 +62,7 @@ const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'human'
     </Card>
   );
 };
+
+export default GameHistory;
 
 export default GameHistory;

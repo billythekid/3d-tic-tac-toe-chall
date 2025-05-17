@@ -22,6 +22,7 @@ interface GameBoardProps {
   gameState: 'playing' | 'won' | 'draw';
   winningLine: WinningLine | null;
   onCellClick: (position: Position) => void;
+  level: number;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ 
@@ -29,7 +30,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentPlayer, 
   gameState, 
   winningLine, 
-  onCellClick
+  onCellClick,
+  level
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -82,8 +84,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = 15;
-    controls.minDistance = 5;
+    controls.maxDistance = 20; // Increased to allow zooming farther out
+    controls.minDistance = 3;  // Decreased to allow zooming closer
     controlsRef.current = controls;
     
     // Add lighting
@@ -207,7 +209,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           );
           
           // Update cell material
-          cell.material = createCellMaterial(isHovered, !!isInWinningLine);
+          cell.material = createCellMaterial(isHovered, !!isInWinningLine, cellValue !== null);
           
           // Add, update, or remove marbles
           if (cellValue !== null) {
@@ -215,7 +217,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             if (!marbleRefs.current[z][y][x]) {
               const position = gameToWorldPosition({ x, y, z }, CELL_SIZE, SPACING, 3);
               const geometry = new THREE.SphereGeometry(MARBLE_RADIUS, 32, 32);
-              const material = createMarbleMaterial(cellValue);
+              const material = createMarbleMaterial(cellValue, level);
               const marble = new THREE.Mesh(geometry, material);
               marble.position.copy(position);
               marble.castShadow = true;
