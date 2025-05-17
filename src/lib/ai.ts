@@ -6,11 +6,11 @@ import { Board, Position, Player, copyBoard, isValidMove, checkForWin, getAllWin
  */
 function evaluateBoard(board: Board, aiPlayer: Player): number {
   const opponentPlayer = aiPlayer === 1 ? 2 : 1;
-  const win = checkForWin(board);
   
   // If there's a win, return a high score (positive for AI, negative for opponent)
-  if (win) {
-    return win.player === aiPlayer ? 1000 : -1000;
+  const winResult = checkForWin(board);
+  if (winResult) {
+    return winResult.player === aiPlayer ? 1000 : -1000;
   }
   
   // Get all potential win lines
@@ -64,9 +64,9 @@ function minimax(
   const opponentPlayer = aiPlayer === 1 ? 2 : 1;
   
   // Check terminal states
-  const win = checkForWin(board);
-  if (win) {
-    return win.player === aiPlayer ? 1000 - depth : depth - 1000;
+  const winResult = checkForWin(board);
+  if (winResult) {
+    return winResult.player === aiPlayer ? 1000 - depth : depth - 1000;
   }
   
   // Check if we've reached the maximum depth
@@ -97,9 +97,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = aiPlayer;
-      const evalValue = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
-      maxEval = Math.max(maxEval, evalValue);
-      alpha = Math.max(alpha, evalValue);
+      const evalScore = minimax(newBoard, depth - 1, false, aiPlayer, alpha, beta);
+      maxEval = Math.max(maxEval, evalScore);
+      alpha = Math.max(alpha, evalScore);
       if (beta <= alpha) break;
     }
     return maxEval;
@@ -108,9 +108,9 @@ function minimax(
     for (const move of moves) {
       const newBoard = copyBoard(board);
       newBoard[move.z][move.y][move.x] = opponentPlayer;
-      const evalValue = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
-      minEval = Math.min(minEval, evalValue);
-      beta = Math.min(beta, evalValue);
+      const evalScore = minimax(newBoard, depth - 1, true, aiPlayer, alpha, beta);
+      minEval = Math.min(minEval, evalScore);
+      beta = Math.min(beta, evalScore);
       if (beta <= alpha) break;
     }
     return minEval;

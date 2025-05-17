@@ -36,9 +36,9 @@ export function createMarbleMaterial(player: 1 | 2, level: number = 1): THREE.Ma
 // Helper function to get computed color from CSS variable
 function getComputedColor(cssVar: string): number {
   // Default fallback colors if CSS variable not available
-  const fallbacks = {
-    1: 0xe11d48, // Ruby red (player)
-    2: 0x0891b2  // Cyan blue (AI)
+  const fallbackColors = {
+    player: 0xe11d48, // Ruby red (player)
+    ai: 0x0891b2  // Cyan blue (AI)
   };
   
   try {
@@ -55,7 +55,7 @@ function getComputedColor(cssVar: string): number {
   }
   
   // Fallback based on player
-  return cssVar.includes('player-color') ? fallbacks[1] : fallbacks[2];
+  return cssVar.includes('player-color') ? fallbackColors.player : fallbackColors.ai;
 }
 
 // Create a cell material
