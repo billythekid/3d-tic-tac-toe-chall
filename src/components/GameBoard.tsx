@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls as ThreeOrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { 
   Board, 
   Position, 
@@ -37,7 +37,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
+  const controlsRef = useRef<ThreeOrbitControls | null>(null);
   const cellRefs = useRef<THREE.Mesh[][][]>([]);
   const marbleRefs = useRef<THREE.Mesh[][][]>([]);
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -81,7 +81,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     rendererRef.current = renderer;
     
     // Add orbit controls for camera
-    const controls = new OrbitControls(camera, renderer.domElement);
+    const controls = new ThreeOrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.maxDistance = 20; // Increased to allow zooming farther out
