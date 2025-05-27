@@ -45,8 +45,9 @@ function getComputedColor(cssVar: string): number {
     // For client-side rendering where document is available
     if (typeof document !== 'undefined') {
       const style = getComputedStyle(document.documentElement);
-      const color = style.getPropertyValue(cssVar.replace('var(', '').replace(')', '').trim());
-      if (color) {
+      const cssVarName = cssVar.replace('var(', '').replace(')', '').trim();
+      const color = style.getPropertyValue(cssVarName);
+      if (color && color.trim() !== '') {
         return new THREE.Color(color).getHex();
       }
     }

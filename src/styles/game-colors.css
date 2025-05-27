@@ -1,0 +1,46 @@
+/* Player and AI color variables for the 3D Tic-Tac-Toe game */
+:root {
+  /* Player Colors - These are the same values from game-logic.ts PLAYER_COLORS */
+  --player-color-0: oklch(0.62 0.22 25);     /* Ruby red (default) */
+  --player-color-1: oklch(0.7 0.2 50);       /* Orange */
+  --player-color-2: oklch(0.8 0.18 85);      /* Amber */
+  --player-color-3: oklch(0.85 0.2 120);     /* Yellow-green */
+  --player-color-4: oklch(0.7 0.2 140);      /* Green */
+  --player-color-5: oklch(0.65 0.2 170);     /* Teal */
+  --player-color-6: oklch(0.65 0.15 200);    /* Cyan blue */
+  --player-color-7: oklch(0.55 0.15 250);    /* Royal blue */
+  --player-color-8: oklch(0.5 0.2 280);      /* Indigo */
+  --player-color-9: oklch(0.6 0.25 300);     /* Purple */
+  --player-color-10: oklch(0.7 0.25 320);    /* Magenta */
+  --player-color-11: oklch(0.65 0.28 350);   /* Pink */
+  --player-color-12: oklch(0.8 0.1 0);       /* Soft red */
+  --player-color-13: oklch(0.5 0.1 100);     /* Olive */
+  --player-color-14: oklch(0.45 0.15 180);   /* Deep sea */
+  --player-color-15: oklch(0.35 0.15 240);   /* Midnight blue */
+  --player-color-16: oklch(0.4 0.15 270);    /* Deep purple */
+  --player-color-17: oklch(0.3 0.1 290);     /* Dark plum */
+  --player-color-18: oklch(0.7 0.05 30);     /* Muted brown */
+  --player-color-19: oklch(0.9 0.05 60);     /* Gold */
+
+  /* AI Colors - These are the same values from game-logic.ts AI_COLORS */
+  --ai-color-0: oklch(0.65 0.15 200);        /* Cyan blue (contrasts with Ruby red) */
+  --ai-color-1: oklch(0.55 0.15 250);        /* Royal blue (contrasts with Orange) */
+  --ai-color-2: oklch(0.5 0.2 280);          /* Indigo (contrasts with Amber) */
+  --ai-color-3: oklch(0.6 0.25 300);         /* Purple (contrasts with Yellow-green) */
+  --ai-color-4: oklch(0.7 0.25 320);         /* Magenta (contrasts with Green) */
+  --ai-color-5: oklch(0.65 0.28 350);        /* Pink (contrasts with Teal) */
+  --ai-color-6: oklch(0.62 0.22 25);         /* Ruby red (contrasts with Cyan blue) */
+  --ai-color-7: oklch(0.7 0.2 50);           /* Orange (contrasts with Royal blue) */
+  --ai-color-8: oklch(0.8 0.18 85);          /* Amber (contrasts with Indigo) */
+  --ai-color-9: oklch(0.85 0.2 120);         /* Yellow-green (contrasts with Purple) */
+  --ai-color-10: oklch(0.7 0.2 140);         /* Green (contrasts with Magenta) */
+  --ai-color-11: oklch(0.65 0.2 170);        /* Teal (contrasts with Pink) */
+  --ai-color-12: oklch(0.5 0.1 300);         /* Lavender (contrasts with Soft red) */
+  --ai-color-13: oklch(0.7 0.2 200);         /* Bright aqua (contrasts with Olive) */
+  --ai-color-14: oklch(0.8 0.15 100);        /* Lime (contrasts with Deep sea) */
+  --ai-color-15: oklch(0.75 0.25 50);        /* Bright orange (contrasts with Midnight blue) */
+  --ai-color-16: oklch(0.8 0.2 80);          /* Yellow (contrasts with Deep purple) */
+  --ai-color-17: oklch(0.85 0.15 140);       /* Mint (contrasts with Dark plum) */
+  --ai-color-18: oklch(0.5 0.15 230);        /* Azure (contrasts with Muted brown) */
+  --ai-color-19: oklch(0.4 0.2 270);         /* Violet (contrasts with Gold) */
+}
