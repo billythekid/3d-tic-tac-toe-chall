@@ -140,7 +140,8 @@ function App() {
         
         // Add to move history
         const newMove = { player: currentPlayer, position: aiMove };
-        setMoves([...moves, newMove]);
+        const updatedMoves = Array.isArray(moves) ? [...moves, newMove] : [newMove];
+        setMoves(updatedMoves);
         
         // Switch players
         setCurrentPlayer(1); // Back to human player
@@ -163,7 +164,8 @@ function App() {
     
     // Add to move history
     const newMove = { player: currentPlayer, position };
-    setMoves([...moves, newMove]);
+    const updatedMoves = Array.isArray(moves) ? [...moves, newMove] : [newMove];
+    setMoves(updatedMoves);
     
     // Switch players
     setCurrentPlayer(2); // AI's turn

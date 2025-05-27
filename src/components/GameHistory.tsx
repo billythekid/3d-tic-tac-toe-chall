@@ -16,18 +16,21 @@ interface GameHistoryProps {
 }
 
 const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'ai' }) => {
+  // Ensure moves is an array
+  const safeMovesArray = Array.isArray(moves) ? moves : [];
+  
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-xl">Move History</CardTitle>
       </CardHeader>
       <CardContent>
-        {moves.length === 0 ? (
+        {safeMovesArray.length === 0 ? (
           <p className="text-muted-foreground text-sm">No moves yet</p>
         ) : (
           <ScrollArea className="h-[200px] pr-4">
             <div className="space-y-3">
-              {moves.map((move, index) => (
+              {safeMovesArray.map((move, index) => (
                 <div 
                   key={index} 
                   className="flex items-center p-2 rounded-md bg-muted/30"
@@ -62,7 +65,5 @@ const GameHistory: React.FC<GameHistoryProps> = ({ moves, opponentType = 'ai' })
     </Card>
   );
 };
-
-export default GameHistory;
 
 export default GameHistory;
