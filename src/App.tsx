@@ -22,7 +22,7 @@ import GameHeader from './components/GameHeader';
 import GameScoreboard from './components/GameScoreboard';
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { useKV } from '@github/spark/hooks';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 interface Move {
   player: Player;
@@ -30,17 +30,17 @@ interface Move {
 }
 
 function App() {
-  // Game settings
-  const [settings, setSettings] = useKV<GameSettings>("tictactoe-settings", DEFAULT_SETTINGS);
+  // Game settings (replaced useKV with useLocalStorage)
+  const [settings, setSettings] = useLocalStorage<GameSettings>("tictactoe-settings", DEFAULT_SETTINGS);
   const [userName, setUserName] = useState<string>(settings.playerName || 'Player');
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   
-  // Game state (persisted via KV store)
-  const [board, setBoard] = useKV<Board>("tictactoe-board", createEmptyBoard());
-  const [currentPlayer, setCurrentPlayer] = useKV<Player>("tictactoe-current-player", 1);
-  const [gameState, setGameState] = useKV<'playing' | 'won' | 'draw'>("tictactoe-game-state", 'playing');
-  const [winningLine, setWinningLine] = useKV<WinningLine | null>("tictactoe-winning-line", null);
-  const [moves, setMoves] = useKV<Move[]>("tictactoe-moves", []);
+  // Game state (replaced useKV with useLocalStorage)
+  const [board, setBoard] = useLocalStorage<Board>("tictactoe-board", createEmptyBoard());
+  const [currentPlayer, setCurrentPlayer] = useLocalStorage<Player>("tictactoe-current-player", 1);
+  const [gameState, setGameState] = useLocalStorage<'playing' | 'won' | 'draw'>("tictactoe-game-state", 'playing');
+  const [winningLine, setWinningLine] = useLocalStorage<WinningLine | null>("tictactoe-winning-line", null);
+  const [moves, setMoves] = useLocalStorage<Move[]>("tictactoe-moves", []);
 
   // AI processing state
   const [aiThinking, setAiThinking] = useState(false);
