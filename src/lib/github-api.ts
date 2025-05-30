@@ -1,3 +1,6 @@
+// Import the spark object
+import { spark } from '@github/spark';
+
 /**
  * Functions for interacting with GitHub API
  */

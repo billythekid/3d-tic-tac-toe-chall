@@ -7,7 +7,8 @@ if (import.meta.env.MODE == 'development') {
     await import('@github/spark/initializeTelemetry');
 }
 
-import "@github/spark/llm"
+// Import for side effects only
+import {} from '@github/spark/llm'
 
 createRoot(document.getElementById('root')!).render(
     <App />
