@@ -5,12 +5,14 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig, PluginOption } from "vite";
+import path from "path";
 
-import { createLogToFileLogger } from "@github/spark/logToFileLogger";
-import { runtimeTelemetryPlugin } from "@github/spark/telemetryPlugin";
-import sparkAgent from "@github/spark/agent-plugin";
-import { tagSourcePlugin, designerHost } from "@github/spark/designerPlugin";
-import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
+// Removed GitHub Spark imports to fix build errors
+// import { createLogToFileLogger } from "@github/spark/logToFileLogger";
+// import { runtimeTelemetryPlugin } from "@github/spark/telemetryPlugin";
+// import sparkAgent from "@github/spark/agent-plugin";
+// import { tagSourcePlugin, designerHost } from "@github/spark/designerPlugin";
+// import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
 
 const extraPlugins: PluginOption[] = [];
 
@@ -19,13 +21,13 @@ const GITHUB_RUNTIME_PERMANENT_NAME = process.env.GITHUB_RUNTIME_PERMANENT_NAME 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    createIconImportProxy(),
+    // createIconImportProxy(), // Removed GitHub Spark plugin
     react(),
     tailwindcss(),
-    runtimeTelemetryPlugin(),
-    sparkAgent({ serverURL: process.env.SPARK_AGENT_URL }) as PluginOption,
-    tagSourcePlugin() as PluginOption, 
-    designerHost() as PluginOption,
+    // runtimeTelemetryPlugin(), // Removed GitHub Spark plugin
+    // sparkAgent({ serverURL: process.env.SPARK_AGENT_URL }) as PluginOption, // Removed GitHub Spark plugin
+    // tagSourcePlugin() as PluginOption, // Removed GitHub Spark plugin
+    // designerHost() as PluginOption, // Removed GitHub Spark plugin
   ],
   build: {
     outDir: process.env.OUTPUT_DIR || 'dist'
@@ -78,8 +80,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": "/workspaces/spark-template/src"
+      "@": path.resolve(__dirname, "./src")
     }
   },
-  customLogger: createLogToFileLogger(),
+  // customLogger: createLogToFileLogger(), // Removed GitHub Spark logger
 });
