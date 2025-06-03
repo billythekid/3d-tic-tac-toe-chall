@@ -48,7 +48,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   
   // Cell and spacing dimensions
   const CELL_SIZE = 1.2;
-  const SPACING = 0.2;
+  const SPACING = 0.8; // Increased from 0.2 to improve accessibility of center positions
   const MARBLE_RADIUS = CELL_SIZE * 0.4;
   
   // Initialize the 3D scene
@@ -67,8 +67,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       0.1, 
       1000
     );
-    // Position camera
-    const cameraDistance = 6;
+    // Position camera - adjusted for increased spacing
+    const cameraDistance = 8; // Increased from 6 to accommodate larger board
     camera.position.set(cameraDistance, cameraDistance, cameraDistance);
     cameraRef.current = camera;
     
