@@ -38,9 +38,10 @@ export function createMarbleMaterial(player: 1 | 2, level: number = 1): THREE.Ma
 // Convert OKLCH color strings to hex values that Three.js can understand
 function convertOklchToHex(oklchString: string): number {
   // Map of OKLCH strings to approximate hex values
+  // This includes ALL colors from both PLAYER_COLORS and AI_COLORS arrays
   const colorMap: Record<string, number> = {
-    // Player colors
-    'oklch(0.62 0.22 25)': 0xe11d48,    // Ruby red
+    // Player colors (matching PLAYER_COLORS array exactly)
+    'oklch(0.62 0.22 25)': 0xe11d48,    // Ruby red (default)
     'oklch(0.7 0.2 50)': 0xf97316,      // Orange
     'oklch(0.8 0.18 85)': 0xf59e0b,     // Amber
     'oklch(0.85 0.2 120)': 0x84cc16,    // Yellow-green
@@ -53,7 +54,7 @@ function convertOklchToHex(oklchString: string): number {
     'oklch(0.7 0.25 320)': 0xd946ef,    // Magenta
     'oklch(0.65 0.28 350)': 0xec4899,   // Pink
     'oklch(0.8 0.1 0)': 0xf87171,       // Soft red
-    'oklch(0.5 0.1 100)': 0x84cc16,     // Olive
+    'oklch(0.5 0.1 100)': 0x84cc16,     // Olive (reusing yellow-green for olive)
     'oklch(0.45 0.15 180)': 0x0e7490,   // Deep sea
     'oklch(0.35 0.15 240)': 0x1e40af,   // Midnight blue
     'oklch(0.4 0.15 270)': 0x5b21b6,    // Deep purple
@@ -61,15 +62,16 @@ function convertOklchToHex(oklchString: string): number {
     'oklch(0.7 0.05 30)': 0xa16207,     // Muted brown
     'oklch(0.9 0.05 60)': 0xeab308,     // Gold
     
-    // AI colors  
-    'oklch(0.5 0.1 300)': 0xc084fc,     // Lavender
-    'oklch(0.7 0.2 200)': 0x22d3ee,     // Bright aqua
-    'oklch(0.8 0.15 100)': 0xa3e635,    // Lime
-    'oklch(0.75 0.25 50)': 0xfb923c,    // Bright orange
-    'oklch(0.8 0.2 80)': 0xfde047,      // Yellow
-    'oklch(0.85 0.15 140)': 0x86efac,   // Mint
-    'oklch(0.5 0.15 230)': 0x0ea5e9,    // Azure
-    'oklch(0.4 0.2 270)': 0x7c3aed,     // Violet
+    // AI colors (matching AI_COLORS array exactly)
+    // Note: Some AI colors are duplicates of player colors (they reuse values)
+    'oklch(0.5 0.1 300)': 0xc084fc,     // Lavender (contrasts with Soft red)
+    'oklch(0.7 0.2 200)': 0x22d3ee,     // Bright aqua (contrasts with Olive)
+    'oklch(0.8 0.15 100)': 0xa3e635,    // Lime (contrasts with Deep sea)
+    'oklch(0.75 0.25 50)': 0xfb923c,    // Bright orange (contrasts with Midnight blue)
+    'oklch(0.8 0.2 80)': 0xfde047,      // Yellow (contrasts with Deep purple)
+    'oklch(0.85 0.15 140)': 0x86efac,   // Mint (contrasts with Dark plum)
+    'oklch(0.5 0.15 230)': 0x0ea5e9,    // Azure (contrasts with Muted brown)
+    'oklch(0.4 0.2 270)': 0x7c3aed,     // Violet (contrasts with Gold)
   };
   
   // Return mapped color or fallback
@@ -78,7 +80,7 @@ function convertOklchToHex(oklchString: string): number {
     return hexColor;
   }
   
-  // Fallback colors
+  // Fallback colors - this should rarely be reached now that all colors are mapped
   console.warn(`Unknown OKLCH color: ${oklchString}, using fallback`);
   return 0xe11d48; // Ruby red fallback
 }
