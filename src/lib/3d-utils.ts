@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { Position } from './game-logic';
+import { PLAYER_COLORS, AI_COLORS } from './game-logic';
 
 // Helper to convert our game coordinates to Three.js coordinates
 export function gameToWorldPosition(position: Position, cellSize: number = 1, spacing: number = 0.2, boardSize: number = 3): THREE.Vector3 {
@@ -16,12 +17,13 @@ export function gameToWorldPosition(position: Position, cellSize: number = 1, sp
 
 // Create a material for player marbles with nice glossy effect
 export function createMarbleMaterial(player: 1 | 2, level: number = 1): THREE.Material {
-  // Get colors from color arrays based on level (1-indexed)
+  // Get colors directly from color arrays based on level (1-indexed)
   const colorIndex = Math.max(0, Math.min(19, level - 1));
-  const cssColorVar = player === 1 ? `var(--player-color-${colorIndex})` : `var(--ai-color-${colorIndex})`;
+  const colorString = player === 1 ? PLAYER_COLORS[colorIndex] : AI_COLORS[colorIndex];
   
-  // Get the computed color from CSS
-  const color = getComputedColor(cssColorVar);
+  // Convert OKLCH to hex - Three.js doesn't support OKLCH directly
+  // We'll use approximate hex equivalents for the most common colors
+  const color = convertOklchToHex(colorString);
   
   const material = new THREE.MeshStandardMaterial({
     color,
@@ -33,31 +35,55 @@ export function createMarbleMaterial(player: 1 | 2, level: number = 1): THREE.Ma
   return material;
 }
 
-// Helper function to get computed color from CSS variable
-function getComputedColor(cssVar: string): number {
-  // Default fallback colors if CSS variable not available
-  const fallbackColors = {
-    player: 0xe11d48, // Ruby red (player)
-    ai: 0x0891b2  // Cyan blue (AI)
+// Convert OKLCH color strings to hex values that Three.js can understand
+function convertOklchToHex(oklchString: string): number {
+  // Map of OKLCH strings to approximate hex values
+  const colorMap: Record<string, number> = {
+    // Player colors
+    'oklch(0.62 0.22 25)': 0xe11d48,    // Ruby red
+    'oklch(0.7 0.2 50)': 0xf97316,      // Orange
+    'oklch(0.8 0.18 85)': 0xf59e0b,     // Amber
+    'oklch(0.85 0.2 120)': 0x84cc16,    // Yellow-green
+    'oklch(0.7 0.2 140)': 0x22c55e,     // Green
+    'oklch(0.65 0.2 170)': 0x14b8a6,    // Teal
+    'oklch(0.65 0.15 200)': 0x0891b2,   // Cyan blue
+    'oklch(0.55 0.15 250)': 0x3b82f6,   // Royal blue
+    'oklch(0.5 0.2 280)': 0x6366f1,     // Indigo
+    'oklch(0.6 0.25 300)': 0x8b5cf6,    // Purple
+    'oklch(0.7 0.25 320)': 0xd946ef,    // Magenta
+    'oklch(0.65 0.28 350)': 0xec4899,   // Pink
+    'oklch(0.8 0.1 0)': 0xf87171,       // Soft red
+    'oklch(0.5 0.1 100)': 0x84cc16,     // Olive
+    'oklch(0.45 0.15 180)': 0x0e7490,   // Deep sea
+    'oklch(0.35 0.15 240)': 0x1e40af,   // Midnight blue
+    'oklch(0.4 0.15 270)': 0x5b21b6,    // Deep purple
+    'oklch(0.3 0.1 290)': 0x581c87,     // Dark plum
+    'oklch(0.7 0.05 30)': 0xa16207,     // Muted brown
+    'oklch(0.9 0.05 60)': 0xeab308,     // Gold
+    
+    // AI colors  
+    'oklch(0.5 0.1 300)': 0xc084fc,     // Lavender
+    'oklch(0.7 0.2 200)': 0x22d3ee,     // Bright aqua
+    'oklch(0.8 0.15 100)': 0xa3e635,    // Lime
+    'oklch(0.75 0.25 50)': 0xfb923c,    // Bright orange
+    'oklch(0.8 0.2 80)': 0xfde047,      // Yellow
+    'oklch(0.85 0.15 140)': 0x86efac,   // Mint
+    'oklch(0.5 0.15 230)': 0x0ea5e9,    // Azure
+    'oklch(0.4 0.2 270)': 0x7c3aed,     // Violet
   };
   
-  try {
-    // For client-side rendering where document is available
-    if (typeof document !== 'undefined') {
-      const style = getComputedStyle(document.documentElement);
-      const cssVarName = cssVar.replace('var(', '').replace(')', '').trim();
-      const color = style.getPropertyValue(cssVarName);
-      if (color && color.trim() !== '') {
-        return new THREE.Color(color).getHex();
-      }
-    }
-  } catch (e) {
-    console.error('Error getting computed color:', e);
+  // Return mapped color or fallback
+  const hexColor = colorMap[oklchString];
+  if (hexColor !== undefined) {
+    return hexColor;
   }
   
-  // Fallback based on player
-  return cssVar.includes('player-color') ? fallbackColors.player : fallbackColors.ai;
+  // Fallback colors
+  console.warn(`Unknown OKLCH color: ${oklchString}, using fallback`);
+  return 0xe11d48; // Ruby red fallback
 }
+
+
 
 // Create a cell material
 export function createCellMaterial(hovered: boolean = false, inWinningLine: boolean = false, hasMarble: boolean = false): THREE.Material {
